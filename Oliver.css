@@ -1,0 +1,121 @@
+*{
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body{
+    background-color: rgb(255, 255, 255);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+.navbar {   
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    /* mix-blend-mode: difference; */
+    color: #ffffff;
+    background-color: #131313d9;
+    /* margin-bottom: -10px; */
+    /* margin-top: -35px; */
+    cursor: pointer;
+    margin-left: -8px;
+    margin-right: -8px;
+    margin-top: -10px;
+    padding: 1px;
+}
+.logo-icon {
+    width: 100px;
+}
+.logo{
+    /* margin-left: 70px; */
+    color: #ffffff;
+    cursor: pointer;
+}
+.gal{
+    font-size: 50px;
+    margin: 5px;
+    color: #344054;
+}
+.content {
+    align-content: center;
+}
+.video {
+    margin-left: 0px;
+    padding: 50px;
+}
+.video_2{
+    padding-left: 20px;
+}
+.logo{
+    /* margin-left: 70px; */
+    color: #ffffff;
+    cursor: pointer;
+}
+
+ul li{
+    display: inline;
+    margin: 15px;
+}
+ul li a{
+    font-size: 17px;
+    /* font-weight: bold; */
+    text-decoration: none;
+    color: #ffffff;
+    transition: .3s;
+}
+ul li a:hover{
+    color: #6eeb07;
+    transition: .4s;
+}
+.home_1{
+    color: #6eeb07;
+    font-size: 17px;
+    /* font-weight: bold; */
+    text-decoration: none;
+}
+.home-content{
+    margin: 20px;
+    font-size: medium;
+    color: #344054;
+}
+.home-content h1{
+    font-size: 50px;
+}
+
+footer{
+    color: #344054;
+    padding-left: 37%;
+    margin-top: 20px;
+}
+/* .hidden {
+    opacity: 0;
+    transform: translateY(50px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+} */
+.fest_2{
+    display: flex;
+    margin: 5px;
+    color: #344054;
+    padding-top: 20px;
+}
+.schnapps{
+    margin-left: 5px;
+}
+.hidden-text {
+    display: none;
+}
+.read-more-btn {
+    background: none;
+    border: none;
+    font-weight: bolder;
+    color: #131313d9; /* Change to your preferred color */
+    font-size: 16px; /* Adjust size if needed */
+    cursor: pointer;
+    padding: 0;
+    text-decoration: underline; /* To make it look like a link */
+}
+
+.read-more-btn:hover {
+    color: darkblue; /* Darker color on hover for effect */
+}

@@ -1,0 +1,241 @@
+<script>
+    function toggleDropdown() {
+        document.getElementById("profileDropdown").classList.toggle("show");
+    }
+
+    // Close dropdown when clicking outside
+    window.onclick = function(event) {
+        if (!event.target.matches('.profile-img')) {
+            var dropdowns = document.getElementsByClassName("dropdown-content");
+            for (var i = 0; i < dropdowns.length; i++) {
+                var openDropdown = dropdowns[i];
+                if (openDropdown.classList.contains('show')) {
+                    openDropdown.classList.remove('show');
+                }
+            }
+        }
+    }
+</script>
+<?php
+// Enable error reporting for debugging (remove in production)
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+// Database connection with error handling
+try {
+    $conn = new mysqli("localhost", "root", "", "upload_image");
+    if ($conn->connect_error) {
+        throw new Exception("Database connection failed: " . $conn->connect_error);
+    }
+
+    // Fetch the latest uploaded image with error handling
+    $defaultImage = 'default.jpg';
+    $image = $defaultImage;
+
+    $query = "SELECT filename FROM images ORDER BY id DESC LIMIT 1";
+    if ($result = $conn->query($query)) {
+        if ($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            $image = htmlspecialchars($row['filename']);
+
+            // Verify the image file actually exists
+            $imagePath = 'uploads/' . $image;
+            if (!file_exists($imagePath)) {
+                error_log("Image file not found: " . $imagePath);
+                $image = $defaultImage;
+            }
+        }
+        $result->close();
+    } else {
+        throw new Exception("Query failed: " . $conn->error);
+    }
+
+    $conn->close();
+} catch (Exception $e) {
+    // Log the error and fall back to default image
+    error_log($e->getMessage());
+    $image = $defaultImage;
+}
+?>
+
+<form id="uploadForm" action="upload.php" method="POST" enctype="multipart/form-data">
+    <div class="upload">
+        <!-- Fallback to default image if the specified image fails to load -->
+        <img id="profileImage"
+            src="uploads/<?php echo $image; ?>"
+            onerror="this.src='uploads/<?php echo $defaultImage; ?>'"
+            width="50" height="50" alt="Profile Image"
+            style="border-radius: 100%; object-fit: cover;" class="profile-img"
+            onclick="toggleDropdown()">
+
+        <div class="round" onclick="document.getElementById('imageUpload').click()">
+            <i class="fa fa-camera" style="color: #4caf50;"></i>
+            <input type="file" id="imageUpload" name="image" accept="image/*" style="display: none;"
+                onchange="document.getElementById('uploadForm').submit()">
+        </div>
+        <div id="profileDropdown" class="dropdown-content">
+            <a href="profile.php"><i class="fas fa-user"></i>Edit Profile</a>
+            <a href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </div>
+
+    <!-- Display upload status if available -->
+    <?php if (isset($_GET['status'])): ?>
+        <div class="upload-status" style="margin-top: 10px; padding: 5px; 
+              background-color: <?php echo $_GET['status'] === 'success' ? '#4CAF50' : '#f44336'; ?>; 
+              color: none; border-radius: 4px;">
+            <?php
+            echo htmlspecialchars($_GET['message'] ??
+                ($_GET['status'] === 'success' ? 'Upload successful!' : 'Upload failed'));
+            ?>
+        </div>
+    <?php endif; ?>
+</form>
+
+<script>
+    // Optional: Add AJAX form submission for better UX
+    document.getElementById('uploadForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        var formData = new FormData(this);
+        var xhr = new XMLHttpRequest();
+
+        xhr.open('POST', this.action, true);
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                // Handle response
+                var response = JSON.parse(xhr.responseText);
+                if (response.status === 'success') {
+                    // Update the image preview
+                    document.getElementById('profileImage').src = 'uploads/' + response.filename + '?t=' + new Date().getTime();
+                }
+                // Redirect with status message
+                // window.location.href = window.location.pathname + '?status=' + response.status +
+                //     '&message=' + encodeURIComponent(response.message);
+            }
+        };
+
+        xhr.send(formData);
+    });
+</script>
+
+<style>
+    .upload {
+        position: relative;
+        width: 50px;
+        height: 50px;
+        padding-right: 30px;
+    }
+
+    #profileImage {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid;
+        box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+    }
+
+    .round {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        background: #fff;
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        display: flex;
+        right: 18px;
+        bottom: -12px;
+        justify-content: center;
+        align-items: center;
+        border: 2px solid;
+        cursor: pointer;
+    }
+
+    .fa-camera {
+        color: #4caf50;
+        font-size: 14px;
+    }
+</style>
+<form id="uploadForm" action="upload.php" method="POST" enctype="multipart/form-data">
+    <div class="upload">
+        <!-- Profile Image with Fallback -->
+        <img id="profileImage"
+            src="uploads/<?php echo $image; ?>"
+            onerror="this.src='uploads/<?php echo $defaultImage; ?>'"
+            width="50" height="50" alt="Profile Image"
+            style="border-radius: 100%; object-fit: cover;"
+            class="profile-img"
+            onclick="toggleDropdown()">
+
+        <!-- Camera Icon for Upload -->
+        <div class="round" onclick="document.getElementById('imageUpload').click()">
+            <i class="fa fa-camera" style="color: #4caf50;"></i>
+            <input type="file" id="imageUpload" name="image" accept="image/*" style="display: none;"
+                onchange="document.getElementById('uploadForm').submit()">
+        </div>
+
+        <!-- Dropdown Menu -->
+        <div id="profileDropdown" class="dropdown-content">
+            <a href="profile.php"><i class="fas fa-user"></i> Edit Profile</a>
+            <a href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </div>
+</form>
+
+<style>
+    /* Dropdown Styling */
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f9f9f9;
+        min-width: 160px;
+        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+        z-index: 1;
+        border-radius: 5px;
+        right: 20px;
+        top: 60px;
+    }
+
+    .dropdown-content a {
+        color: black;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+    }
+
+    .dropdown-content a:hover {
+        background-color: #f1f1f1;
+        border-radius: 5px;
+    }
+
+    .upload {
+        position: relative;
+        display: inline-block;
+    }
+
+    /* Show dropdown when active */
+    .show {
+        display: block;
+    }
+</style>
+
+<script>
+    function toggleDropdown() {
+        document.getElementById("profileDropdown").classList.toggle("show");
+    }
+
+    // Close dropdown if clicked outside
+    window.onclick = function(event) {
+        if (!event.target.matches('.profile-img')) {
+            var dropdowns = document.getElementsByClassName("dropdown-content");
+            for (var i = 0; i < dropdowns.length; i++) {
+                var openDropdown = dropdowns[i];
+                if (openDropdown.classList.contains('show')) {
+                    openDropdown.classList.remove('show');
+                }
+            }
+        }
+    }
+</script>
